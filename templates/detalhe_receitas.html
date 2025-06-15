@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}{{ receita.titulo }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{{ receita.titulo.title() }}</h1>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        {% set imagem_src = url_for('static', filename='uploads/' + receita.imagem) if receita.imagem else url_for('static', filename='images/imagem-generica.jpg') %}
+        <img src="{{ imagem_src }}" class="img-fluid rounded" alt="Imagem da receita">
+    </div>
+
+    <div class="col-md-6">
+        <h4>Descrição</h4>
+        <p>{{ receita.descricao }}</p>
+
+        <h4>Ingredientes</h4>
+        <ul>
+            {% for ingrediente in receita.ingredientes.split(',') %}
+                <li>{{ ingrediente.strip() }}</li>
+            {% endfor %}
+        </ul>
+
+        <h4>Modo de Preparo</h4>
+        {% if receita.modo_preparo %}
+            <p>{{ receita.modo_preparo }}</p>
+        {% endif %}
+
+        {% if receita.instrucoes %}
+            <ul>
+                {% for instrucao in receita.instrucoes.split(',') %}
+                    <li>{{ instrucao.strip() }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Botões de ação -->
+<div class="mb-4 d-flex flex-wrap gap-2">
+    <a href="{{ url_for('main.listar_receitas') }}" class="btn btn-outline-secondary">Voltar às Receitas</a>
+
+    {% if current_user.is_authenticated and current_user.id == receita.usuario_id %}
+        <a href="{{ url_for('main.editar_receita', id=receita.id) }}" class="btn btn-primary">Editar Receita</a>
+
+        <form action="{{ url_for('main.excluir_receita', id=receita.id) }}" method="POST" style="display:inline;">
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja excluir esta receita?')">
+                Excluir Receita
+            </button>
+        </form>
+    {% endif %}
+</div>
+
+<!-- Avaliação -->
+<div class="card mt-4">
+    <div class="card-header">
+        Avaliar Receita
+    </div>
+    <div class="card-body">
+        {% if current_user.is_authenticated %}
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                <div class="mb-3">
+                    {{ form.nota.label(class="form-label") }}
+                    {{ form.nota(class="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.comentario.label(class="form-label") }}
+                    {{ form.comentario(class="form-control", rows=3) }}
+                </div>
+                <button type="submit" class="btn btn-success">Enviar Avaliação</button>
+            </form>
+        {% else %}
+            <p class="text-muted">Faça login para avaliar esta receita.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

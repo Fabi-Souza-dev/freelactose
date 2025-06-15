@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}{{ produto.nome }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <h1 class="mb-4">{{ produto.nome }}</h1>
+
+  <div class="row mb-4">
+    <div class="col-md-6 mb-3">
+      {% if produto.imagem %}
+        <img src="{{ url_for('static', filename='uploads/' + produto.imagem) }}" alt="{{ produto.nome }}" class="img-fluid rounded shadow">
+      {% else %}
+        <div class="alert alert-warning">Este produto ainda não possui imagem.</div>
+      {% endif %}
+    </div>
+
+    <div class="col-md-6">
+      <h4>Descrição</h4>
+      <p>{{ produto.descricao }}</p>
+
+      <h4>Marca</h4>
+      <p>{{ produto.marca }}</p>
+
+      <h4>Categoria</h4>
+      <p>{{ produto.categoria }}</p>
+    </div>
+  </div>
+
+  <!-- Botões de ação -->
+  <div class="mb-4 d-flex flex-wrap gap-2">
+    <a href="{{ url_for('main.listar_produtos') }}" class="btn btn-outline-secondary">Voltar aos Produtos</a>
+
+    {% if current_user.is_authenticated and current_user.id == produto.usuario_id %}
+      <a href="{{ url_for('main.editar_produto', id=produto.id) }}" class="btn btn-primary">Editar Produto</a>
+
+      <form action="{{ url_for('main.excluir_produto', id=produto.id) }}" method="POST" class="d-inline">
+        {{ form.hidden_tag() }}
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja excluir este produto?')">
+          Excluir Produto
+        </button>
+      </form>
+    {% endif %}
+  </div>
+
+  <!-- Avaliação -->
+  <div class="card mt-5">
+    <div class="card-header">
+      Avaliar Produto
+    </div>
+    <div class="card-body">
+      {% if current_user.is_authenticated %}
+        <form method="POST" enctype="multipart/form-data">
+          {{ form.hidden_tag() }}
+
+          <div class="mb-3">
+            {{ form.nota.label(class="form-label") }}
+            {{ form.nota(class="form-control") }}
+            {% for error in form.nota.errors %}
+              <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="mb-3">
+            {{ form.comentario.label(class="form-label") }}
+            {{ form.comentario(class="form-control", rows=3) }}
+            {% for error in form.comentario.errors %}
+              <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="mb-3">
+            {{ form.imagem.label(class="form-label") }}
+            {{ form.imagem(class="form-control") }}
+            {% for error in form.imagem.errors %}
+              <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <button type="submit" class="btn btn-success">Enviar Avaliação</button>
+        </form>
+      {% else %}
+        <p class="text-muted">Faça login para avaliar este produto.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Início{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2 class="mb-4">Receitas em Destaque</h2>
+        <div class="row">
+            {% for receita in receitas %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <img src="{{ url_for('static', filename='uploads/' + receita.imagem) if receita.imagem else url_for('static', filename='images/recipe-placeholder.jpg') }}" 
+                        class="card-img-top" alt="{{ receita.titulo }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ receita.titulo }}</h5>
+                        <p class="card-text">{{ receita.descricao|truncate(100) }}</p>
+                        <a href="{{ url_for('main.detalhe_receita', id=receita.id) }}" class="btn btn-primary">Ver Receita</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <h2 class="mb-4">Produtos Seguros</h2>
+        <div class="list-group">
+            {% for produto in produtos %}
+            <a href="{{ url_for('main.detalhe_produto', id=produto.id) }}" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ produto.nome }}</h5>
+                    <small>{{ produto.marca }}</small>
+                </div>
+                <p class="mb-1">{{ produto.categoria }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

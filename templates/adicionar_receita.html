@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block titulo %}Adicionar Receita{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-center">Adicionar Nova Receita</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.titulo.label(class="form-label") }}
+                        {{ form.titulo(class="form-control" + (" is-invalid" if form.titulo.errors else "")) }}
+                        {% if form.titulo.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.titulo.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.descricao.label(class="form-label") }}
+                        {{ form.descricao(class="form-control" + (" is-invalid" if form.descricao.errors else "")) }}
+                        {% if form.descricao.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.descricao.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.ingredientes.label(class="form-label") }}
+                        {{ form.ingredientes(class="form-control" + (" is-invalid" if form.ingredientes.errors else ""),
+                        rows=4) }}
+                        {% if form.ingredientes.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.ingredientes.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.instrucoes.label(class="form-label") }}
+                        {{ form.instrucoes(class="form-control" + (" is-invalid" if form.instrucoes.errors else ""),
+                        rows=4) }}
+                        {% if form.instrucoes.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.instrucoes.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.imagem.label(class="form-label") }}
+                        {{ form.imagem(class="form-control") }}
+                        {% if form.imagem.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.imagem.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-success") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

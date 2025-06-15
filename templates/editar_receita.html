@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Editar Receita</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+            <label for="titulo" class="form-label">{{ form.titulo.label }}</label>
+            {{ form.titulo(class="form-control", id="titulo") }}
+        </div>
+
+        <div class="mb-3">
+            <label for="descricao" class="form-label">{{ form.descricao.label }}</label>
+            {{ form.descricao(class="form-control", id="descricao") }}
+        </div>
+
+        <div class="mb-3">
+            <label for="ingredientes" class="form-label">{{ form.ingredientes.label }}</label>
+            {{ form.ingredientes(class="form-control", id="ingredientes") }}
+        </div>
+
+        <div class="mb-3">
+            <label for="instrucoes" class="form-label">{{ form.instrucoes.label }}</label>
+            {{ form.instrucoes(class="form-control", id="instrucoes") }}
+        </div>
+
+        <div class="mb-3">
+            <label for="tags" class="form-label">{{ form.tags.label }}</label>
+            {{ form.tags(class="form-control", id="tags") }}
+        </div>
+
+        <div class="mb-3">
+            <label for="imagem" class="form-label">{{ form.imagem.label }}</label>
+            {{ form.imagem(class="form-control", id="imagem") }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">{{ form.submit.label }}</button>
+    </form>
+</div>
+{% endblock %}

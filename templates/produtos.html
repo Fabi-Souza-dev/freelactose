@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Produtos Sem Lactose{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Produtos Sem Lactose</h1>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <form method="GET" action="{{ url_for('main.listar_produtos') }}" class="d-flex">
+            {{ form_busca.csrf_token }}
+            {{ form_busca.termo(class="form-control me-2", placeholder="Buscar produtos...") }}
+            {{ form_busca.buscar(class="btn btn-outline-success") }}
+        </form>
+    </div>
+</div>
+
+{% if produtos.items %}
+<div class="row">
+    {% for produto in produtos.items %}
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    {% if produto.imagem %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ produto.imagem) }}"
+                         class="img-fluid rounded-start" alt="{{ produto.nome }}">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='images/product-placeholder.jpg') }}"
+                         class="img-fluid rounded-start" alt="Imagem padrão">
+                    {% endif %}
+
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ produto.nome }}</h5>
+                        <p class="card-text"><small class="text-muted">{{ produto.marca }}</small></p>
+                        <p class="card-text">{{ produto.descricao|truncate(150) }}</p>
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-info">{{ produto.categoria }}</span>
+                            <a href="{{ url_for('main.detalhe_produto', id=produto.id) }}"
+                               class="btn btn-sm btn-outline-primary">Ver Detalhes</a>
+                        </div>
+
+                        {% if current_user.is_authenticated and produto.usuario_id == current_user.id %}
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('main.editar_produto', id=produto.id) }}"
+                               class="btn btn-warning btn-sm">Editar</a>
+                            <form action="{{ url_for('main.excluir_produto', id=produto.id) }}" method="POST"
+                                  style="display:inline;">
+                                {% if form_exclusao %}
+                                {{ form_exclusao.csrf_token }}
+                                {% endif %}
+                                <button type="submit" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Tem certeza que deseja excluir este produto?');">
+                                    Excluir
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if produtos.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('main.listar_produtos', page=produtos.prev_num, termo=termo) }}">Anterior</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+        {% endif %}
+
+        {% for page_num in produtos.iter_pages() %}
+        {% if page_num %}
+        <li class="page-item {% if page_num == produtos.page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('main.listar_produtos', page=page_num, termo=termo) }}">{{ page_num
+                }}</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">...</span></li>
+        {% endif %}
+        {% endfor %}
+
+        {% if produtos.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('main.listar_produtos', page=produtos.next_num, termo=termo) }}">Próxima</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">Próxima</span></li>
+        {% endif %}
+    </ul>
+</nav>
+{% else %}
+<p class="text-center mt-4">Nenhum produto encontrado.</p>
+{% endif %}
+{% endblock %}

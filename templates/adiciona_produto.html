@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ titulo }}</h2>
+
+    <!-- Exibir mensagens de erro -->
+    {% for field, errors in form.errors.items() %}
+        {% for error in errors %}
+            <div class="alert alert-danger">
+                Erro no campo {{ field }}: {{ error }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+<form method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+        {{ form.nome.label(class="form-label") }}
+        {{ form.nome(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.descricao.label(class="form-label") }}
+        {{ form.descricao(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.marca.label(class="form-label") }}
+        {{ form.marca(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.categoria.label(class="form-label") }}
+        {{ form.categoria(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.imagem.label(class="form-label") }}
+        {{ form.imagem(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.submit(class="btn btn-primary") }}
+    </div>
+</form>
+
+</div>
+{% endblock %}

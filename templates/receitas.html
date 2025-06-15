@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Receitas Sem Lactose{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Receitas Sem Lactose</h1>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <form method="GET" action="{{ url_for('main.listar_receitas') }}" class="d-flex">
+            {{ form_busca.csrf_token }}
+            {{ form_busca.termo(class="form-control me-2", placeholder="Buscar receitas...") }}
+            {{ form_busca.buscar(class="btn btn-outline-success") }}
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    {% for receita in receitas.items %}
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="{{ url_for('static', filename='uploads/' + receita.imagem) if receita.imagem else url_for('static', filename='images/receita-placeholder.jpg') }}" 
+                        class="img-fluid rounded-start" alt="{{ receita.nome }}">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ receita.titulo }}</h5>
+                        <p class="card-text">{{ receita.descricao|truncate(150) }}</p>
+                        <a href="{{ url_for('main.detalhe_receita', id=receita.id) }}" class="btn btn-sm btn-outline-primary">Ver Detalhes</a>
+
+                        {% if current_user.is_authenticated and current_user.id == receita.autor_id %}
+                        <a href="{{ url_for('main.editar_receita', id=receita.id) }}" class="btn btn-sm btn-outline-warning ms-2">Editar</a>
+                        <form action="{{ url_for('main.excluir_receita', id=receita.id) }}" method="POST" class="d-inline ms-2">
+                            {% if form_exclusao %}
+                                {{ form_exclusao.csrf_token }}
+                            {% endif %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja excluir esta receita?');">Excluir</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if receitas.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('main.listar_receitas', page=receitas.prev_num, termo=termo) }}">Anterior</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">Anterior</span>
+        </li>
+        {% endif %}
+
+        {% for page_num in receitas.iter_pages() %}
+            {% if page_num %}
+                <li class="page-item {% if page_num == receitas.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('main.listar_receitas', page=page_num, termo=termo) }}">{{ page_num }}</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if receitas.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('main.listar_receitas', page=receitas.next_num, termo=termo) }}">Próxima</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">Próxima</span>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endblock %}

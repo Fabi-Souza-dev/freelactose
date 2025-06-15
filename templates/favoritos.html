@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Favoritos{% endblock %}
+
+{% block content %}
+<h1>Meus Favoritos</h1>
+
+<h3>Receitas</h3>
+<ul class="list-group mb-4">
+    {% for receita in receitas %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <a href="{{ url_for('main.detalhe_receita', id=receita.id) }}">{{ receita.nome }}</a>
+        </li>
+    {% else %}
+        <li class="list-group-item">Nenhuma receita favorita adicionada.</li>
+    {% endfor %}
+</ul>
+
+<h3>Produtos</h3>
+<ul class="list-group">
+    {% for produto in produtos %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <a href="{{ url_for('main.detalhe_produto', id=produto.id) }}">{{ produto.nome }}</a>
+        </li>
+    {% else %}
+        <li class="list-group-item">Nenhum produto favorito adicionado.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

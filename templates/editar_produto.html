@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Editar Produto</h2>
+
+  <form method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+      <label for="nome" class="form-label">{{ form.nome.label }}</label>
+      {{ form.nome(class="form-control", id="nome") }}
+    </div>
+
+    <div class="mb-3">
+      <label for="descricao" class="form-label">{{ form.descricao.label }}</label>
+      {{ form.descricao(class="form-control", rows="3", id="descricao") }}
+    </div>
+
+    <div class="mb-3">
+      <label for="marca" class="form-label">{{ form.marca.label }}</label>
+      {{ form.marca(class="form-control", id="marca") }}
+    </div>
+
+    <div class="mb-3">
+      <label for="categoria" class="form-label">{{ form.categoria.label }}</label>
+      {{ form.categoria(class="form-control", id="categoria") }}
+    </div>
+
+    <div class="mb-3">
+      <label for="imagem" class="form-label">{{ form.imagem.label }}</label>
+      {{ form.imagem(class="form-control", id="imagem") }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+    <a href="{{ url_for('main.detalhe_produto', id=produto.id) }}" class="btn btn-secondary ms-2">Cancelar</a>
+  </form>
+</div>
+{% endblock %}
