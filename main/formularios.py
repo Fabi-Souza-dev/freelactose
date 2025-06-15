@@ -31,10 +31,6 @@ class FormularioBusca(FlaskForm):
 
 class FormularioProduto(FlaskForm):
 
-    avaliacao = FloatField(
-        "Avaliação",
-        validators=[NumberRange(min=0, max=5, message="A avaliação deve estar entre 0 e 5.")]
-    )
 
     nome = StringField(
         "Nome do Produto",
