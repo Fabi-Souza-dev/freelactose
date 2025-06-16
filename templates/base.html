@@ -49,6 +49,9 @@
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('main.listar_receitas') }}">Receitas</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('main.listar_produtos') }}">Produtos</a></li>
                 {% if current_user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main.recomendacoes') }}">Recomendações</a>
+                </li>
                 <!--<li class="nav-item"><a class="nav-link" href="{{ url_for('main.favoritos') }}">Favoritos</a></li>-->
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('main.adicionar_receita') }}">Nova Receita</a>
                 </li>

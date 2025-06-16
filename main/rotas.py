@@ -3,6 +3,7 @@ from flask_login import current_user, login_required
 from extensions import db
 from main import bp
 from models import Receita, Produto, Avaliacao, Favorito
+from .recomendacoes import recomendar_receitas_para
 from main.formularios import (
     FormularioReceita,
     FormularioAvaliacaoProduto,
@@ -118,7 +119,11 @@ def detalhe_receita(id):
         return redirect(url_for('main.detalhe_receita', id=receita.id))
     return render_template('detalhe_receitas.html', titulo=receita.titulo, receita=receita, form=form)
 
-
+@bp.route('/recomendacoes')
+@login_required
+def recomendacoes():
+    receitas_recomendadas = recomendar_receitas_para(current_user.id)
+    return render_template('recomendacoes.html', receitas=receitas_recomendadas)
 
 
 @bp.route('/produtos')

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Recomendações{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-3">Receitas recomendadas para você</h2>
+  {% if receitas %}
+    <div class="row">
+      {% for receita in receitas %}
+        <div class="col-md-4">
+          <div class="card mb-3">
+            <div class="card-body">
+              <h5 class="card-title">{{ receita.nome }}</h5>
+              <a href="{{ url_for('main.detalhe_receita', id=receita.id) }}" class="btn btn-primary">Ver receita</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>Nenhuma recomendação disponível ainda. Avalie algumas receitas para começar!</p>
+  {% endif %}
+</div>
+{% endblock %}
