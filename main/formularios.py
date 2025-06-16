@@ -72,3 +72,6 @@ class FormularioProduto(FlaskForm):
     )
 
     submit = SubmitField("Cadastrar Produto")
+
+class FormularioExclusao(FlaskForm):
+    pass

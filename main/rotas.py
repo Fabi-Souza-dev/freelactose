@@ -8,7 +8,8 @@ from main.formularios import (
     FormularioAvaliacaoProduto,
     FormularioAvaliacaoReceita,
     FormularioBusca,
-    FormularioProduto
+    FormularioProduto,
+    FormularioExclusao
 )
 import os
 from werkzeug.utils import secure_filename
@@ -41,6 +42,7 @@ def listar_receitas():
 def detalhe_produto(id):
     produto = Produto.query.get_or_404(id)
     form = FormularioAvaliacaoProduto()
+    form_exclusao = FormularioExclusao()
     termo = request.args.get('termo', '')
 
     if form.validate_on_submit():
@@ -60,7 +62,7 @@ def detalhe_produto(id):
 
         return redirect(url_for('main.detalhe_produto', id=produto.id, termo=termo))
 
-    return render_template('detalhe_produto.html', titulo=produto.nome, produto=produto, form=form, termo=termo)
+    return render_template('detalhe_produto.html', titulo=produto.nome, produto=produto, form=form, termo=termo, form_exclusao=form_exclusao)
 
 
 @bp.route('/adicionar_produto', methods=['GET', 'POST'])
@@ -117,9 +119,12 @@ def detalhe_receita(id):
     return render_template('detalhe_receitas.html', titulo=receita.titulo, receita=receita, form=form)
 
 
+
+
 @bp.route('/produtos')
 def listar_produtos():
     form_busca = FormularioBusca()
+    form_exclusao = FormularioExclusao()
     pagina = request.args.get('page', 1, type=int)
     termo = request.args.get('termo', '')
 
@@ -130,7 +135,7 @@ def listar_produtos():
     else:
         produtos = Produto.query.paginate(page=pagina, per_page=10, error_out=False)
 
-    return render_template('produtos.html', titulo='Produtos', produtos=produtos, form_busca=form_busca, termo=termo)
+    return render_template('produtos.html', titulo='Produtos', produtos=produtos, form_busca=form_busca, termo=termo, form_exclusao=form_exclusao)
 
 
 @bp.route("/favoritos")
