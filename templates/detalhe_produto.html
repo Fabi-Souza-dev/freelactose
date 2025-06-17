@@ -45,46 +45,34 @@
         {% endif %}
     </div>
 
-    <!-- Avaliação -->
-    <div class="card mt-5">
-        <div class="card-header">
-            Avaliar Produto
-        </div>
+    <!-- Avaliações já feitas -->
+    <hr>
+    <h4 class="mt-4">Avaliações dos Usuários</h4>
+
+    {% if avaliacoes %}
+    {% for a in avaliacoes %}
+    <div class="card mt-3">
         <div class="card-body">
-            {% if current_user.is_authenticated %}
-            <form method="POST" enctype="multipart/form-data">
-                {{ form.hidden_tag() }}
-
-                <div class="mb-3">
-                    {{ form.nota.label(class="form-label") }}
-                    {{ form.nota(class="form-control") }}
-                    {% for error in form.nota.errors %}
-                    <div class="text-danger">{{ error }}</div>
-                    {% endfor %}
-                </div>
-
-                <div class="mb-3">
-                    {{ form.comentario.label(class="form-label") }}
-                    {{ form.comentario(class="form-control", rows=3) }}
-                    {% for error in form.comentario.errors %}
-                    <div class="text-danger">{{ error }}</div>
-                    {% endfor %}
-                </div>
-
-                <div class="mb-3">
-                    {{ form.imagem.label(class="form-label") }}
-                    {{ form.imagem(class="form-control") }}
-                    {% for error in form.imagem.errors %}
-                    <div class="text-danger">{{ error }}</div>
-                    {% endfor %}
-                </div>
-
-                <button type="submit" class="btn btn-success">Enviar Avaliação</button>
-            </form>
-            {% else %}
-            <p class="text-muted">Faça login para avaliar este produto.</p>
+            <h5 class="card-title">Nota: {{ a.nota }}</h5>
+            <p class="card-text">{{ a.comentario }}</p>
+            <small class="text-muted">Por {{ a.autor.nome_usuario }} em {{ a.data_avaliacao.strftime('%d/%m/%Y')
+                }}</small>
+            {% if current_user.is_authenticated and a.usuario_id == current_user.id %}
+            <div class="mt-2">
+                <a href="{{ url_for('main.editar_avaliacao', id=a.id) }}" class="btn btn-sm btn-primary">Editar</a>
+                <form action="{{ url_for('main.excluir_avaliacao', id=a.id) }}" method="post" style="display:inline;">
+                    {{ form_exclusao.csrf_token }}
+                    <button type="submit" class="btn btn-sm btn-danger">Excluir</button>
+                </form>
+            </div>
             {% endif %}
         </div>
     </div>
+    {% endfor %}
+    {% else %}
+    <p class="text-muted">Ainda não há avaliações para este produto.</p>
+    {% endif %}
+
+
 </div>
 {% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Produtos Recomendados{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-3">Produtos recomendados para você</h2>
+
+  {% if produtos %}
+    <div class="row">
+      {% for produto in produtos %}
+        <div class="col-md-4">
+          <div class="card mb-3">
+            <div class="card-body">
+              <h5 class="card-title">{{ produto.nome }}</h5>
+              <p class="card-text">{{ produto.descricao }}</p>
+              <a href="{{ url_for('main.detalhe_produto', id=produto.id) }}" class="btn btn-primary">Ver Produto</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>Nenhuma recomendação disponível ainda. Avalie alguns produtos para começar!</p>
+  {% endif %}
+</div>
+{% endblock %}

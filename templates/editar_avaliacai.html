@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Editar Avaliação{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Editar sua Avaliação</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.nota.label(class="form-label") }}
+            {{ form.nota(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.comentario.label(class="form-label") }}
+            {{ form.comentario(class="form-control") }}
+        </div>
+        <button type="submit" class="btn btn-success">Salvar Alterações</button>
+        <a href="{{ url_for('main.detalhe_produto', id=avaliacao.produto_id) }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, IntegerField, SubmitField, FloatField
+from wtforms import StringField, TextAreaField, IntegerField, SubmitField, FloatField, HiddenField
 from wtforms.validators import DataRequired, Length, NumberRange
 from flask_wtf.file import FileField, FileAllowed
 
@@ -23,6 +23,15 @@ class FormularioAvaliacaoReceita(FlaskForm):
     nota = IntegerField('Avaliação (1-5)', validators=[DataRequired(), NumberRange(min=1, max=5, message='A avaliação deve ser entre 1 e 5')])
     comentario = TextAreaField('Comentário', validators=[Length(max=500, message='O comentário não pode ter mais de 500 caracteres')])
     enviar = SubmitField('Enviar Avaliação')
+
+class FormularioAvaliacaoProduto(FlaskForm):
+    nota = IntegerField('Avaliação (1-5)', validators=[DataRequired(), NumberRange(min=1, max=5)])
+    comentario = TextAreaField('Comentário')
+    avaliacao_id = HiddenField()  # usado para edição
+    submit = SubmitField('Enviar Avaliação')
+
+class FormularioExclusao(FlaskForm):
+    submit = SubmitField('Excluir')
 
 class FormularioBusca(FlaskForm):
     termo = StringField('Buscar', validators=[Length(max=100)])

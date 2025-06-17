@@ -66,21 +66,23 @@ class Produto(db.Model):
 # === MODELO AVALIACAO ===
 class Avaliacao(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nota = db.Column(db.Integer)
+    nota = db.Column(db.Integer, nullable=False)
     comentario = db.Column(db.Text)
-    data_avaliacao = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    data_avaliacao = db.Column(db.DateTime, default=datetime.utcnow)
 
-    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id', name='fk_avaliacao_usuario'))
-    receita_id = db.Column(db.Integer, db.ForeignKey('receita.id', name='fk_avaliacao_receita'))
-    produto_id = db.Column(db.Integer, db.ForeignKey('produto.id', name='fk_avaliacao_produto'))
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
+    produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'))
+    receita_id = db.Column(db.Integer, db.ForeignKey('receita.id'))
 
     # Relacionamentos
     autor = db.relationship('Usuario', back_populates='avaliacoes')
-    receita = db.relationship('Receita', back_populates='avaliacoes')
     produto = db.relationship('Produto', back_populates='avaliacoes')
+    receita = db.relationship('Receita', back_populates='avaliacoes')
 
     def __repr__(self):
         return f'<Avaliacao {self.id} - Nota {self.nota}>'
+
+
 
 # === MODELO FAVORITO ===
 class Favorito(db.Model):

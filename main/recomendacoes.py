@@ -1,7 +1,7 @@
 # main/recomendacoes.py
 
 from flask_login import current_user
-from models import Receita, Avaliacao, db
+from models import Receita, Avaliacao, db, Produto
 from sqlalchemy.sql import func
 
 def recomendar_receitas_para(usuario_id, limite=5):
@@ -29,3 +29,33 @@ def recomendar_receitas_para(usuario_id, limite=5):
         return populares
 
     return favoritas
+
+def recomendar_produtos_para(usuario_id, limite=5):
+    # Produtos que o usuário avaliou bem
+    favoritos = (
+        db.session.query(Produto)
+        .join(Avaliacao)
+        .filter(
+            Avaliacao.usuario_id == usuario_id,
+            Avaliacao.produto_id == Produto.id
+        )
+        .order_by(Avaliacao.nota.desc())
+        .limit(limite)
+        .all()
+    )
+
+    if favoritos:
+        return favoritos
+
+    # Se não houver favoritos, retorna produtos mais bem avaliados por todos
+    populares = (
+        db.session.query(Produto)
+        .join(Avaliacao)
+        .filter(Avaliacao.produto_id == Produto.id)
+        .group_by(Produto.id)
+        .order_by(func.avg(Avaliacao.nota).desc())
+        .limit(limite)
+        .all()
+    )
+
+    return populares

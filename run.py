@@ -27,6 +27,8 @@ def criar_aplicacao():
     app.register_blueprint(bp_autenticacao, url_prefix='/auth')
     from main import bp as bp_main
     app.register_blueprint(bp_main)
+    # from main.views import bp as main_bp
+    # app.register_blueprint(main_bp)
 
     return app
 

@@ -3,7 +3,7 @@ from flask_login import current_user, login_required
 from extensions import db
 from main import bp
 from models import Receita, Produto, Avaliacao, Favorito
-from .recomendacoes import recomendar_receitas_para
+from .recomendacoes import recomendar_receitas_para, recomendar_produtos_para
 from main.formularios import (
     FormularioReceita,
     FormularioAvaliacaoProduto,
@@ -46,8 +46,15 @@ def detalhe_produto(id):
     form_exclusao = FormularioExclusao()
     termo = request.args.get('termo', '')
 
+    # Buscar todas as avaliações deste produto
+    avaliacoes = Avaliacao.query.filter_by(produto_id=produto.id).order_by(Avaliacao.data.desc()).all()
+
     if form.validate_on_submit():
-        avaliacao_existente = Avaliacao.query.filter_by(usuario_id=current_user.id, produto_id=produto.id).first()
+        avaliacao_existente = Avaliacao.query.filter_by(
+            usuario_id=current_user.id,
+            produto_id=produto.id
+        ).first()
+
         if not avaliacao_existente:
             avaliacao = Avaliacao(
                 nota=form.nota.data,
@@ -57,14 +64,27 @@ def detalhe_produto(id):
             )
             db.session.add(avaliacao)
             db.session.commit()
-            flash('Sua avaliação foi publicada!')
+            flash('Sua avaliação foi publicada!', 'success')
         else:
-            flash('Você já avaliou este produto.')
+            flash('Você já avaliou este produto.', 'warning')
 
         return redirect(url_for('main.detalhe_produto', id=produto.id, termo=termo))
 
-    return render_template('detalhe_produto.html', titulo=produto.nome, produto=produto, form=form, termo=termo, form_exclusao=form_exclusao)
+    return render_template(
+        'detalhe_produto.html',
+        titulo=produto.nome,
+        produto=produto,
+        form=form,
+        termo=termo,
+        form_exclusao=form_exclusao,
+        avaliacoes=produto.avaliacoes
+    )
 
+@bp.route('/recomendacoes-produtos')
+@login_required
+def recomendacoes_produtos():
+    produtos_recomendados = recomendar_produtos_para(current_user.id)
+    return render_template('recomendacoes_produtos.html', produtos=produtos_recomendados)
 
 @bp.route('/adicionar_produto', methods=['GET', 'POST'])
 @login_required
@@ -180,6 +200,40 @@ def adicionar_receita():
         return redirect(url_for('main.index'))
 
     return render_template('adicionar_receita.html', titulo='Adicionar Receita', form=form)
+
+@bp.route('/avaliacao-produto/editar/<int:id>', methods=['GET', 'POST'])
+@login_required
+def editar_avaliacao_produto(id):
+    avaliacao = Avaliacao.query.get_or_404(id)
+
+    if avaliacao.usuario_id != current_user.id:
+        flash("Você não tem permissão para editar esta avaliação.", "danger")
+        return redirect(url_for('main.index'))
+
+    form = FormularioAvaliacaoProduto(obj=avaliacao)
+
+    if form.validate_on_submit():
+        avaliacao.nota = form.nota.data
+        avaliacao.comentario = form.comentario.data
+        db.session.commit()
+        flash("Avaliação atualizada com sucesso!", "success")
+        return redirect(url_for('main.detalhe_produto', id=avaliacao.produto_id))
+
+    return render_template('editar_avaliacao_produto.html', form=form, avaliacao=avaliacao)
+
+@bp.route('/avaliacao/excluir/<int:id>', methods=['POST'])
+@login_required
+def excluir_avaliacao(id):
+    avaliacao = Avaliacao.query.get_or_404(id)
+    if avaliacao.usuario_id != current_user.id:
+        flash('Você não tem permissão para excluir esta avaliação.', 'danger')
+        return redirect(url_for('main.index'))
+
+    produto_id = avaliacao.produto_id
+    db.session.delete(avaliacao)
+    db.session.commit()
+    flash('Avaliação excluída com sucesso!', 'success')
+    return redirect(url_for('main.detalhe_produto', id=produto_id))
 
 
 @bp.route('/adicionar_favorito/<tipo>/<int:id>')
