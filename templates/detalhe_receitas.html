@@ -1,93 +1,109 @@
 {% extends "base.html" %}
-
 {% block title %}{{ receita.titulo }}{% endblock %}
 
 {% block content %}
 <div class="container my-5">
-    <!-- Título -->
-    <h1 class="mb-4 text-center fw-bold">{{ receita.titulo.title() }}</h1>
 
-    <div class="row g-4 mb-5 align-items-start">
-        <!-- Imagem -->
+    <!-- Título da Receita -->
+    <h1 class="mb-4 text-center fw-bold">{{ receita.titulo }}</h1>
+
+    <!-- Imagem e Informações -->
+    <div class="row align-items-start g-4 mb-5">
         <div class="col-md-6">
-            {% set imagem_src = url_for('static', filename='uploads/' + receita.imagem) if receita.imagem else url_for('static', filename='images/imagem-generica.jpg') %}
-            <img src="{{ imagem_src }}" class="img-fluid rounded shadow border" alt="Imagem da receita">
+            {% if receita.imagem %}
+            <img src="{{ url_for('static', filename='uploads/' + receita.imagem) }}"
+                 alt="{{ receita.titulo }}" class="img-fluid rounded shadow-sm border">
+            {% else %}
+            <div class="alert alert-warning">Esta receita ainda não possui imagem.</div>
+            {% endif %}
         </div>
 
-        <!-- Detalhes da Receita -->
         <div class="col-md-6">
             <div class="bg-light p-4 rounded shadow-sm border">
-
-                <h5 class="text-secondary">Descrição</h5>
-                <p>{{ receita.descricao }}</p>
-
                 <h5 class="text-secondary">Ingredientes</h5>
-                <ul class="list-group list-group-flush mb-3">
-                    {% for ingrediente in receita.ingredientes.split(',') %}
-                        <li class="list-group-item">{{ ingrediente.strip() }}</li>
-                    {% endfor %}
-                </ul>
+                <p>{{ receita.ingredientes }}</p>
 
                 <h5 class="text-secondary">Modo de Preparo</h5>
-                {% if receita.modo_preparo %}
-                    <p>{{ receita.modo_preparo }}</p>
-                {% endif %}
+                <p>{{ receita.modo_preparo }}</p>
 
-                {% if receita.instrucoes %}
-                    <ul class="list-group list-group-flush">
-                        {% for instrucao in receita.instrucoes.split(',') %}
-                            <li class="list-group-item">{{ instrucao.strip() }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
+                <h5 class="text-secondary">Categoria</h5>
+                <p><span class="badge bg-secondary">{{ receita.categoria }}</span></p>
             </div>
         </div>
     </div>
 
-    <!-- Botões de ação -->
-    <div class="d-flex flex-wrap gap-2 mb-4">
-        <a href="{{ url_for('main.listar_receitas') }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Voltar às Receitas
-        </a>
+    <!-- Avaliações -->
+    <hr>
+    <h3 class="mt-5 mb-4 text-center">Avaliações dos Usuários</h3>
 
-        {% if current_user.is_authenticated and current_user.id == receita.usuario_id %}
-            <a href="{{ url_for('main.editar_receita', id=receita.id) }}" class="btn btn-primary">
-                <i class="bi bi-pencil"></i> Editar Receita
-            </a>
-            <form action="{{ url_for('main.excluir_receita', id=receita.id) }}" method="POST" class="d-inline">
-                <button type="submit" class="btn btn-danger"
-                        onclick="return confirm('Tem certeza que deseja excluir esta receita?')">
-                    <i class="bi bi-trash"></i> Excluir Receita
-                </button>
-            </form>
-        {% endif %}
+    {% if avaliacoes %}
+    <div class="row g-4">
+        {% for avaliacao in avaliacoes %}
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-warning">Nota: {{ avaliacao.nota }} ⭐</h5>
+                    {% if avaliacao.comentario %}
+                    <p class="card-text">{{ avaliacao.comentario }}</p>
+                    {% endif %}
+                    <small class="text-muted d-block">
+                        Por <strong>{{ avaliacao.autor.nome_usuario }}</strong>
+                        {% if avaliacao.data_avaliacao %}
+                        em {{ avaliacao.data_avaliacao.strftime('%d/%m/%Y') }}
+                        {% else %}
+                        (data desconhecida)
+                        {% endif %}
+                    </small>
+
+                    {% if current_user.is_authenticated and avaliacao.usuario_id == current_user.id %}
+                    <div class="mt-3 d-flex gap-2">
+                        <a href="{{ url_for('main.editar_avaliacao', avaliacao_id=avaliacao.id) }}"
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil-square"></i> Editar
+                        </a>
+                        <form action="{{ url_for('main.excluir_avaliacao', avaliacao_id=avaliacao.id) }}" method="post" class="d-inline">
+                            {{ form_exclusao.csrf_token }}
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-x-circle"></i> Excluir
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     </div>
+    {% else %}
+    <p class="text-muted text-center">Ainda não há avaliações para esta receita.</p>
+    {% endif %}
 
-    <!-- Avaliação -->
-    <div class="card shadow-sm border-0">
+    <!-- Formulário de Avaliação -->
+    <div class="card shadow-sm border-0 mt-5">
         <div class="card-header bg-success text-white fw-bold">
             <i class="bi bi-star-fill"></i> Avaliar Receita
         </div>
         <div class="card-body">
             {% if current_user.is_authenticated %}
-                <form method="POST">
-                    {{ form.hidden_tag() }}
-                    <div class="mb-3">
-                        {{ form.nota.label(class="form-label") }}
-                        {{ form.nota(class="form-control") }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.comentario.label(class="form-label") }}
-                        {{ form.comentario(class="form-control", rows=3) }}
-                    </div>
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-check-circle"></i> Enviar Avaliação
-                    </button>
-                </form>
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                <div class="mb-3">
+                    {{ form.nota.label(class="form-label") }}
+                    {{ form.nota(class="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.comentario.label(class="form-label") }}
+                    {{ form.comentario(class="form-control", rows=3) }}
+                </div>
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-circle"></i> Enviar Avaliação
+                </button>
+            </form>
             {% else %}
-                <p class="text-muted">Faça login para avaliar esta receita.</p>
+            <p class="text-muted">Faça login para avaliar esta receita.</p>
             {% endif %}
         </div>
     </div>
+
 </div>
 {% endblock %}

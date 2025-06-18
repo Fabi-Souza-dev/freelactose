@@ -34,7 +34,8 @@ def listar_receitas():
             Receita.titulo.contains(termo) | Receita.tags.contains(termo)
         ).order_by(Receita.data_criacao.desc()).paginate(page=pagina, per_page=10, error_out=False)
     else:
-        receitas = Receita.query.order_by(Receita.data_criacao.desc()).paginate(page=pagina, per_page=10, error_out=False)
+        receitas = Receita.query.order_by(Receita.data_criacao.desc()).paginate(page=pagina, per_page=10,
+                                                                                error_out=False)
 
     return render_template('receitas.html', titulo='Receitas', receitas=receitas, form_busca=form_busca, termo=termo)
 
@@ -80,11 +81,13 @@ def detalhe_produto(id):
         avaliacoes=avaliacoes
     )
 
+
 @bp.route('/recomendacoes-produtos')
 @login_required
 def recomendacoes_produtos():
     produtos_recomendados = recomendar_produtos_para(current_user.id)
     return render_template('recomendacoes_produtos.html', produtos=produtos_recomendados)
+
 
 @bp.route('/adicionar_produto', methods=['GET', 'POST'])
 @login_required
@@ -116,11 +119,12 @@ def adicionar_produto():
     return render_template('adiciona_produto.html', form=form, titulo='Adicionar Produto')
 
 
-
 @bp.route('/receita/<int:id>', methods=['GET', 'POST'])
 def detalhe_receita(id):
     receita = Receita.query.get_or_404(id)
     form = FormularioAvaliacaoReceita()
+    form_exclusao = FormularioExclusao()  # instância para o token CSRF na exclusão
+
     if form.validate_on_submit():
         avaliacao_existente = Avaliacao.query.filter_by(usuario_id=current_user.id, receita_id=receita.id).first()
         if not avaliacao_existente:
@@ -135,9 +139,19 @@ def detalhe_receita(id):
             flash('Sua avaliação foi publicada!')
         else:
             flash('Você já avaliou esta receita.')
-
         return redirect(url_for('main.detalhe_receita', id=receita.id))
-    return render_template('detalhe_receitas.html', titulo=receita.titulo, receita=receita, form=form)
+
+    avaliacoes = Avaliacao.query.filter_by(receita_id=receita.id).all()
+    return render_template(
+        'detalhe_receitas.html',
+        titulo=receita.titulo,
+        receita=receita,
+        form=form,
+        form_exclusao=form_exclusao,  # <-- importante passar para o template!
+        avaliacoes=avaliacoes
+    )
+
+
 
 @bp.route('/recomendacoes')
 @login_required
@@ -160,7 +174,8 @@ def listar_produtos():
     else:
         produtos = Produto.query.paginate(page=pagina, per_page=10, error_out=False)
 
-    return render_template('produtos.html', titulo='Produtos', produtos=produtos, form_busca=form_busca, termo=termo, form_exclusao=form_exclusao)
+    return render_template('produtos.html', titulo='Produtos', produtos=produtos, form_busca=form_busca, termo=termo,
+                           form_exclusao=form_exclusao)
 
 
 @bp.route("/favoritos")
@@ -201,6 +216,7 @@ def adicionar_receita():
 
     return render_template('adicionar_receita.html', titulo='Adicionar Receita', form=form)
 
+
 @bp.route('/avaliacao-produto/editar/<int:id>', methods=['GET', 'POST'])
 @login_required
 def editar_avaliacao_produto(id):
@@ -220,6 +236,7 @@ def editar_avaliacao_produto(id):
         return redirect(url_for('main.detalhe_produto', id=avaliacao.produto_id))
 
     return render_template('editar_avaliacao_produto.html', form=form, avaliacao=avaliacao)
+
 
 @bp.route('/adicionar_favorito/<tipo>/<int:id>')
 @login_required
@@ -323,7 +340,6 @@ def editar_produto(id):
     return render_template('editar_produto.html', form=form, produto=produto)
 
 
-
 @bp.route('/produto/excluir/<int:id>', methods=['POST'])
 @login_required
 def excluir_produto(id):
@@ -336,6 +352,7 @@ def excluir_produto(id):
     db.session.commit()
     flash('Produto excluído com sucesso.', 'success')
     return redirect(url_for('main.listar_produtos'))
+
 
 @bp.route('/meus-comentarios')
 @login_required
@@ -367,6 +384,9 @@ def meus_comentarios():
         termo_busca=termo_busca
     )
 
+
+
+
 @bp.route('/avaliacao/<int:avaliacao_id>/editar', methods=['GET', 'POST'])
 @login_required
 def editar_avaliacao(avaliacao_id):
@@ -375,14 +395,18 @@ def editar_avaliacao(avaliacao_id):
         flash("Você não tem permissão para editar esta avaliação.", "danger")
         return redirect(url_for('main.meus_comentarios'))
 
-    if request.method == 'POST':
-        avaliacao.nota = request.form['nota']
-        avaliacao.comentario = request.form['comentario']
+    form = FormularioAvaliacaoProduto(obj=avaliacao)  # Preenche o form com dados existentes
+
+    if form.validate_on_submit():
+        avaliacao.nota = form.nota.data
+        avaliacao.comentario = form.comentario.data
         db.session.commit()
         flash("Avaliação atualizada com sucesso!", "success")
         return redirect(url_for('main.meus_comentarios'))
 
-    return render_template('editar_avaliacao.html', avaliacao=avaliacao)
+    return render_template('editar_avaliacao.html', avaliacao=avaliacao, form=form)
+
+
 
 @bp.route('/avaliacao/<int:avaliacao_id>/excluir')
 @login_required

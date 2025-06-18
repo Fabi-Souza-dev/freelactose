@@ -1,19 +1,27 @@
 {% extends "base.html" %}
+
 {% block title %}Editar Avaliação{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-    <h2>Editar Avaliação</h2>
-    <form method="post">
+    <h2 class="mb-4">Editar Avaliação</h2>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
         <div class="mb-3">
-            <label for="nota" class="form-label">Nota</label>
-            <input type="number" name="nota" id="nota" class="form-control" value="{{ avaliacao.nota }}" required min="1" max="5">
+            {{ form.nota.label(class="form-label") }}
+            {{ form.nota(class="form-control") }}
         </div>
+
         <div class="mb-3">
-            <label for="comentario" class="form-label">Comentário</label>
-            <textarea name="comentario" id="comentario" class="form-control" required>{{ avaliacao.comentario }}</textarea>
+            {{ form.comentario.label(class="form-label") }}
+            {{ form.comentario(class="form-control", rows="4") }}
         </div>
-        <button type="submit" class="btn btn-success">Salvar</button>
+
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-circle"></i> Salvar Alterações
+        </button>
         <a href="{{ url_for('main.meus_comentarios') }}" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
