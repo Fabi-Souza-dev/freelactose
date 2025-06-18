@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Editar Avaliação{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Editar Avaliação</h2>
+    <form method="post">
+        <div class="mb-3">
+            <label for="nota" class="form-label">Nota</label>
+            <input type="number" name="nota" id="nota" class="form-control" value="{{ avaliacao.nota }}" required min="1" max="5">
+        </div>
+        <div class="mb-3">
+            <label for="comentario" class="form-label">Comentário</label>
+            <textarea name="comentario" id="comentario" class="form-control" required>{{ avaliacao.comentario }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-success">Salvar</button>
+        <a href="{{ url_for('main.meus_comentarios') }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

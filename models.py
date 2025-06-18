@@ -2,6 +2,8 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from extensions import db, login
+from sqlalchemy.sql import func
+
 
 # === MODELO USUARIO ===
 class Usuario(UserMixin, db.Model):
@@ -65,22 +67,19 @@ class Produto(db.Model):
 
 # === MODELO AVALIACAO ===
 class Avaliacao(db.Model):
+    __tablename__ = 'avaliacao'
     id = db.Column(db.Integer, primary_key=True)
     nota = db.Column(db.Integer, nullable=False)
-    comentario = db.Column(db.Text)
+    comentario = db.Column(db.Text, nullable=True)
     data_avaliacao = db.Column(db.DateTime, default=datetime.utcnow)
 
-    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
-    produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'))
-    receita_id = db.Column(db.Integer, db.ForeignKey('receita.id'))
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    receita_id = db.Column(db.Integer, db.ForeignKey('receita.id'), nullable=True)
+    produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'), nullable=True)
 
-    # Relacionamentos
     autor = db.relationship('Usuario', back_populates='avaliacoes')
-    produto = db.relationship('Produto', back_populates='avaliacoes')
     receita = db.relationship('Receita', back_populates='avaliacoes')
-
-    def __repr__(self):
-        return f'<Avaliacao {self.id} - Nota {self.nota}>'
+    produto = db.relationship('Produto', back_populates='avaliacoes')
 
 
 

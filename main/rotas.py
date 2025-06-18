@@ -221,21 +221,6 @@ def editar_avaliacao_produto(id):
 
     return render_template('editar_avaliacao_produto.html', form=form, avaliacao=avaliacao)
 
-@bp.route('/avaliacao/excluir/<int:id>', methods=['POST'])
-@login_required
-def excluir_avaliacao(id):
-    avaliacao = Avaliacao.query.get_or_404(id)
-    if avaliacao.usuario_id != current_user.id:
-        flash('Você não tem permissão para excluir esta avaliação.', 'danger')
-        return redirect(url_for('main.index'))
-
-    produto_id = avaliacao.produto_id
-    db.session.delete(avaliacao)
-    db.session.commit()
-    flash('Avaliação excluída com sucesso!', 'success')
-    return redirect(url_for('main.detalhe_produto', id=produto_id))
-
-
 @bp.route('/adicionar_favorito/<tipo>/<int:id>')
 @login_required
 def adicionar_favorito(tipo, id):
@@ -351,3 +336,63 @@ def excluir_produto(id):
     db.session.commit()
     flash('Produto excluído com sucesso.', 'success')
     return redirect(url_for('main.listar_produtos'))
+
+@bp.route('/meus-comentarios')
+@login_required
+def meus_comentarios():
+    termo_busca = request.args.get('busca', '')
+
+    avaliacoes_receitas = (
+        Avaliacao.query
+        .filter(Avaliacao.usuario_id == current_user.id, Avaliacao.receita_id != None)
+        .join(Receita, Avaliacao.receita_id == Receita.id)
+        .filter(Receita.titulo.ilike(f'%{termo_busca}%'))
+        .add_columns(Receita.titulo.label('nome_item'), Receita.id.label('item_id'))
+        .all()
+    )
+
+    avaliacoes_produtos = (
+        Avaliacao.query
+        .filter(Avaliacao.usuario_id == current_user.id, Avaliacao.produto_id != None)
+        .join(Produto, Avaliacao.produto_id == Produto.id)
+        .filter(Produto.nome.ilike(f'%{termo_busca}%'))
+        .add_columns(Produto.nome.label('nome_item'), Produto.id.label('item_id'))
+        .all()
+    )
+
+    return render_template(
+        'meus_comentarios.html',
+        avaliacoes_receitas=avaliacoes_receitas,
+        avaliacoes_produtos=avaliacoes_produtos,
+        termo_busca=termo_busca
+    )
+
+@bp.route('/avaliacao/<int:avaliacao_id>/editar', methods=['GET', 'POST'])
+@login_required
+def editar_avaliacao(avaliacao_id):
+    avaliacao = Avaliacao.query.get_or_404(avaliacao_id)
+    if avaliacao.usuario_id != current_user.id:
+        flash("Você não tem permissão para editar esta avaliação.", "danger")
+        return redirect(url_for('main.meus_comentarios'))
+
+    if request.method == 'POST':
+        avaliacao.nota = request.form['nota']
+        avaliacao.comentario = request.form['comentario']
+        db.session.commit()
+        flash("Avaliação atualizada com sucesso!", "success")
+        return redirect(url_for('main.meus_comentarios'))
+
+    return render_template('editar_avaliacao.html', avaliacao=avaliacao)
+
+@bp.route('/avaliacao/<int:avaliacao_id>/excluir')
+@login_required
+def excluir_avaliacao(avaliacao_id):
+    avaliacao = Avaliacao.query.get_or_404(avaliacao_id)
+    if avaliacao.usuario_id != current_user.id:
+        flash("Você não tem permissão para excluir esta avaliação.", "danger")
+        return redirect(url_for('main.meus_comentarios'))
+
+    db.session.delete(avaliacao)
+    db.session.commit()
+    flash("Avaliação excluída com sucesso!", "success")
+    return redirect(url_for('main.meus_comentarios'))

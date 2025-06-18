@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Meus Comentários{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Minhas Avaliações</h2>
+
+    <form method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text" class="form-control" name="busca" placeholder="Buscar por nome..." value="{{ termo_busca }}">
+            <button class="btn btn-primary" type="submit">Buscar</button>
+        </div>
+    </form>
+
+    <h4>Avaliações de Receitas</h4>
+    {% if avaliacoes_receitas %}
+        <div class="list-group mb-4">
+            {% for avaliacao, nome_item, item_id in avaliacoes_receitas %}
+            <div class="list-group-item">
+                <h5 class="mb-1">{{ nome_item }}</h5>
+                <p class="mb-1">{{ avaliacao.comentario }}</p>
+                <small>Nota: {{ avaliacao.nota }} | {{ avaliacao.data_avaliacao.strftime('%d/%m/%Y') }}</small>
+                <div class="mt-2">
+                    <a href="{{ url_for('main.editar_avaliacao', avaliacao_id=avaliacao.id) }}" class="btn btn-sm btn-warning">Editar</a>
+                    <a href="{{ url_for('main.excluir_avaliacao', avaliacao_id=avaliacao.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir esta avaliação?')">Excluir</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Você ainda não avaliou nenhuma receita.</p>
+    {% endif %}
+
+    <h4>Avaliações de Produtos</h4>
+    {% if avaliacoes_produtos %}
+        <div class="list-group">
+            {% for avaliacao, nome_item, item_id in avaliacoes_produtos %}
+            <div class="list-group-item">
+                <h5 class="mb-1">{{ nome_item }}</h5>
+                <p class="mb-1">{{ avaliacao.comentario }}</p>
+                <small>Nota: {{ avaliacao.nota }} | {{ avaliacao.data_avaliacao.strftime('%d/%m/%Y') }}</small>
+                <div class="mt-2">
+                    <a href="{{ url_for('main.editar_avaliacao', avaliacao_id=avaliacao.id) }}" class="btn btn-sm btn-warning">Editar</a>
+                    <a href="{{ url_for('main.excluir_avaliacao', avaliacao_id=avaliacao.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir esta avaliação?')">Excluir</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Você ainda não avaliou nenhum produto.</p>
+    {% endif %}
+</div>
+{% endblock %}
