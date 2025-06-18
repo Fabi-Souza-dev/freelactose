@@ -1,24 +1,44 @@
 {% extends "base.html" %}
-{% block title %}Recomendações{% endblock %}
+{% block title %}Receitas Recomendadas{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2 class="mb-3">Receitas recomendadas para você</h2>
+<div class="container mt-5">
+  <h2 class="mb-4 text-center">Receitas recomendadas para você</h2>
+
   {% if receitas %}
-    <div class="row">
+    <div class="row g-4">
       {% for receita in receitas %}
         <div class="col-md-4">
-          <div class="card mb-3">
-            <div class="card-body">
-              <h5 class="card-title">{{ receita.nome }}</h5>
-              <a href="{{ url_for('main.detalhe_receita', id=receita.id) }}" class="btn btn-primary">Ver receita</a>
+          <div class="card h-100 shadow-sm border-0">
+            {% if receita.imagem %}
+              <img src="{{ url_for('static', filename='uploads/' + receita.imagem) }}"
+                   class="card-img-top" alt="{{ receita.titulo }}">
+            {% else %}
+              <div class="bg-light text-center p-4">
+                <small class="text-muted">Sem imagem disponível</small>
+              </div>
+            {% endif %}
+
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">{{ receita.titulo }}</h5>
+              <p class="card-text flex-grow-1">{{ receita.descricao[:100] }}{% if receita.descricao|length > 100 %}...{% endif %}</p>
+
+              {% if receita.tags %}
+                <p>
+                  <span class="badge bg-success">{{ receita.tags }}</span>
+                </p>
+              {% endif %}
+
+              <a href="{{ url_for('main.detalhe_receita', id=receita.id) }}" class="btn btn-success mt-auto">
+                Ver Receita
+              </a>
             </div>
           </div>
         </div>
       {% endfor %}
     </div>
   {% else %}
-    <p>Nenhuma recomendação disponível ainda. Avalie algumas receitas para começar!</p>
+    <p class="text-muted text-center">Nenhuma recomendação disponível ainda. Avalie algumas receitas para começar!</p>
   {% endif %}
 </div>
 {% endblock %}

@@ -2,25 +2,44 @@
 {% block title %}Produtos Recomendados{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2 class="mb-3">Produtos recomendados para você</h2>
+<div class="container mt-5">
+  <h2 class="mb-4 text-center">Produtos recomendados para você</h2>
 
   {% if produtos %}
-    <div class="row">
+    <div class="row g-4">
       {% for produto in produtos %}
         <div class="col-md-4">
-          <div class="card mb-3">
-            <div class="card-body">
+          <div class="card h-100 shadow-sm border-0">
+            {% if produto.imagem %}
+              <img src="{{ url_for('static', filename='uploads/' + produto.imagem) }}"
+                   class="card-img-top" alt="{{ produto.nome }}">
+            {% else %}
+              <div class="bg-light text-center p-4">
+                <small class="text-muted">Sem imagem disponível</small>
+              </div>
+            {% endif %}
+
+            <div class="card-body d-flex flex-column">
               <h5 class="card-title">{{ produto.nome }}</h5>
-              <p class="card-text">{{ produto.descricao }}</p>
-              <a href="{{ url_for('main.detalhe_produto', id=produto.id) }}" class="btn btn-primary">Ver Produto</a>
+              <p class="card-text flex-grow-1">{{ produto.descricao or "Sem descrição." }}</p>
+
+              <p class="mb-1">
+                <span class="badge bg-info text-dark">{{ produto.marca or "Sem marca" }}</span>
+              </p>
+              <p>
+                <span class="badge bg-secondary">{{ produto.categoria or "Sem categoria" }}</span>
+              </p>
+
+              <a href="{{ url_for('main.detalhe_produto', id=produto.id) }}" class="btn btn-success mt-auto">
+                Ver Produto
+              </a>
             </div>
           </div>
         </div>
       {% endfor %}
     </div>
   {% else %}
-    <p>Nenhuma recomendação disponível ainda. Avalie alguns produtos para começar!</p>
+    <p class="text-muted text-center">Nenhuma recomendação disponível ainda. Avalie alguns produtos para começar!</p>
   {% endif %}
 </div>
 {% endblock %}
