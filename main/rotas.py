@@ -47,7 +47,7 @@ def detalhe_produto(id):
     termo = request.args.get('termo', '')
 
     # Buscar todas as avaliações deste produto
-    avaliacoes = Avaliacao.query.filter_by(produto_id=produto.id).order_by(Avaliacao.data.desc()).all()
+    avaliacoes = Avaliacao.query.filter_by(produto_id=produto.id).order_by(Avaliacao.data_avaliacao.desc()).all()
 
     if form.validate_on_submit():
         avaliacao_existente = Avaliacao.query.filter_by(
@@ -77,7 +77,7 @@ def detalhe_produto(id):
         form=form,
         termo=termo,
         form_exclusao=form_exclusao,
-        avaliacoes=produto.avaliacoes
+        avaliacoes=avaliacoes
     )
 
 @bp.route('/recomendacoes-produtos')

@@ -5,6 +5,7 @@ from extensions import db, login
 from sqlalchemy.sql import func
 
 
+
 # === MODELO USUARIO ===
 class Usuario(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)

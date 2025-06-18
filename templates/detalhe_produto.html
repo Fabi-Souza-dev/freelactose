@@ -41,7 +41,6 @@
                 Excluir Produto
             </button>
         </form>
-
         {% endif %}
     </div>
 
@@ -49,30 +48,35 @@
     <hr>
     <h4 class="mt-4">Avaliações dos Usuários</h4>
 
-    {% if avaliacoes %}
-    {% for a in avaliacoes %}
-    <div class="card mt-3">
-        <div class="card-body">
-            <h5 class="card-title">Nota: {{ a.nota }}</h5>
-            <p class="card-text">{{ a.comentario }}</p>
-            <small class="text-muted">Por {{ a.autor.nome_usuario }} em {{ a.data_avaliacao.strftime('%d/%m/%Y')
-                }}</small>
-            {% if current_user.is_authenticated and a.usuario_id == current_user.id %}
-            <div class="mt-2">
-                <a href="{{ url_for('main.editar_avaliacao', id=a.id) }}" class="btn btn-sm btn-primary">Editar</a>
-                <form action="{{ url_for('main.excluir_avaliacao', id=a.id) }}" method="post" style="display:inline;">
-                    {{ form_exclusao.csrf_token }}
-                    <button type="submit" class="btn btn-sm btn-danger">Excluir</button>
-                </form>
+    {% if avaliacoes is defined and avaliacoes %}
+        {% for a in avaliacoes %}
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title">Nota: {{ a.nota }} ⭐</h5>
+                <p class="card-text">{{ a.comentario }}</p>
+                <small class="text-muted">
+                    Por {{ a.autor.nome_usuario }}
+                    {% if a.data_avaliacao %}
+                        em {{ a.data_avaliacao.strftime('%d/%m/%Y') }}
+                    {% else %}
+                        (data desconhecida)
+                    {% endif %}
+                </small>
+                {% if current_user.is_authenticated and a.usuario_id == current_user.id %}
+                <div class="mt-2">
+                    <a href="{{ url_for('main.editar_avaliacao', id=a.id) }}" class="btn btn-sm btn-primary">Editar</a>
+                    <form action="{{ url_for('main.excluir_avaliacao', id=a.id) }}" method="post" style="display:inline;">
+                        {{ form_exclusao.csrf_token }}
+                        <button type="submit" class="btn btn-sm btn-danger">Excluir</button>
+                    </form>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
         </div>
-    </div>
-    {% endfor %}
+        {% endfor %}
     {% else %}
-    <p class="text-muted">Ainda não há avaliações para este produto.</p>
+        <p class="text-muted">Ainda não há avaliações para este produto.</p>
     {% endif %}
-
 
 </div>
 {% endblock %}
