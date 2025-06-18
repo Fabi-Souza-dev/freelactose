@@ -3,77 +3,91 @@
 {% block title %}{{ receita.titulo }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">{{ receita.titulo.title() }}</h1>
+<div class="container my-5">
+    <!-- Título -->
+    <h1 class="mb-4 text-center fw-bold">{{ receita.titulo.title() }}</h1>
 
-<div class="row mb-4">
-    <div class="col-md-6">
-        {% set imagem_src = url_for('static', filename='uploads/' + receita.imagem) if receita.imagem else url_for('static', filename='images/imagem-generica.jpg') %}
-        <img src="{{ imagem_src }}" class="img-fluid rounded" alt="Imagem da receita">
+    <div class="row g-4 mb-5 align-items-start">
+        <!-- Imagem -->
+        <div class="col-md-6">
+            {% set imagem_src = url_for('static', filename='uploads/' + receita.imagem) if receita.imagem else url_for('static', filename='images/imagem-generica.jpg') %}
+            <img src="{{ imagem_src }}" class="img-fluid rounded shadow border" alt="Imagem da receita">
+        </div>
+
+        <!-- Detalhes da Receita -->
+        <div class="col-md-6">
+            <div class="bg-light p-4 rounded shadow-sm border">
+
+                <h5 class="text-secondary">Descrição</h5>
+                <p>{{ receita.descricao }}</p>
+
+                <h5 class="text-secondary">Ingredientes</h5>
+                <ul class="list-group list-group-flush mb-3">
+                    {% for ingrediente in receita.ingredientes.split(',') %}
+                        <li class="list-group-item">{{ ingrediente.strip() }}</li>
+                    {% endfor %}
+                </ul>
+
+                <h5 class="text-secondary">Modo de Preparo</h5>
+                {% if receita.modo_preparo %}
+                    <p>{{ receita.modo_preparo }}</p>
+                {% endif %}
+
+                {% if receita.instrucoes %}
+                    <ul class="list-group list-group-flush">
+                        {% for instrucao in receita.instrucoes.split(',') %}
+                            <li class="list-group-item">{{ instrucao.strip() }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
     </div>
 
-    <div class="col-md-6">
-        <h4>Descrição</h4>
-        <p>{{ receita.descricao }}</p>
+    <!-- Botões de ação -->
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <a href="{{ url_for('main.listar_receitas') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar às Receitas
+        </a>
 
-        <h4>Ingredientes</h4>
-        <ul>
-            {% for ingrediente in receita.ingredientes.split(',') %}
-                <li>{{ ingrediente.strip() }}</li>
-            {% endfor %}
-        </ul>
-
-        <h4>Modo de Preparo</h4>
-        {% if receita.modo_preparo %}
-            <p>{{ receita.modo_preparo }}</p>
-        {% endif %}
-
-        {% if receita.instrucoes %}
-            <ul>
-                {% for instrucao in receita.instrucoes.split(',') %}
-                    <li>{{ instrucao.strip() }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    </div>
-</div>
-
-<!-- Botões de ação -->
-<div class="mb-4 d-flex flex-wrap gap-2">
-    <a href="{{ url_for('main.listar_receitas') }}" class="btn btn-outline-secondary">Voltar às Receitas</a>
-
-    {% if current_user.is_authenticated and current_user.id == receita.usuario_id %}
-        <a href="{{ url_for('main.editar_receita', id=receita.id) }}" class="btn btn-primary">Editar Receita</a>
-
-        <form action="{{ url_for('main.excluir_receita', id=receita.id) }}" method="POST" style="display:inline;">
-            <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja excluir esta receita?')">
-                Excluir Receita
-            </button>
-        </form>
-    {% endif %}
-</div>
-
-<!-- Avaliação -->
-<div class="card mt-4">
-    <div class="card-header">
-        Avaliar Receita
-    </div>
-    <div class="card-body">
-        {% if current_user.is_authenticated %}
-            <form method="POST">
-                {{ form.hidden_tag() }}
-                <div class="mb-3">
-                    {{ form.nota.label(class="form-label") }}
-                    {{ form.nota(class="form-control") }}
-                </div>
-                <div class="mb-3">
-                    {{ form.comentario.label(class="form-label") }}
-                    {{ form.comentario(class="form-control", rows=3) }}
-                </div>
-                <button type="submit" class="btn btn-success">Enviar Avaliação</button>
+        {% if current_user.is_authenticated and current_user.id == receita.usuario_id %}
+            <a href="{{ url_for('main.editar_receita', id=receita.id) }}" class="btn btn-primary">
+                <i class="bi bi-pencil"></i> Editar Receita
+            </a>
+            <form action="{{ url_for('main.excluir_receita', id=receita.id) }}" method="POST" class="d-inline">
+                <button type="submit" class="btn btn-danger"
+                        onclick="return confirm('Tem certeza que deseja excluir esta receita?')">
+                    <i class="bi bi-trash"></i> Excluir Receita
+                </button>
             </form>
-        {% else %}
-            <p class="text-muted">Faça login para avaliar esta receita.</p>
         {% endif %}
+    </div>
+
+    <!-- Avaliação -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-success text-white fw-bold">
+            <i class="bi bi-star-fill"></i> Avaliar Receita
+        </div>
+        <div class="card-body">
+            {% if current_user.is_authenticated %}
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.nota.label(class="form-label") }}
+                        {{ form.nota(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.comentario.label(class="form-label") }}
+                        {{ form.comentario(class="form-control", rows=3) }}
+                    </div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Enviar Avaliação
+                    </button>
+                </form>
+            {% else %}
+                <p class="text-muted">Faça login para avaliar esta receita.</p>
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}
